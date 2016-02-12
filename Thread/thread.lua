@@ -51,7 +51,7 @@ Thread = Class()
 -- static functions
 
 function Thread.create(func, ...)
-  local thread = Thread(func, name)
+  local thread = Thread(func, ...)
   table.insert(threads, thread)
 
   return thread
