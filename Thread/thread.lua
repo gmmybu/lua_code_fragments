@@ -75,16 +75,19 @@ function Thread.dispatch()
     end
 
     for _, thread in ipairs(resumed_threads) do
-      local coro = thread._coro
-      local args = thread._resume_args
+      -- may be terminated
+      if thread._state == states.resumed then
+        local coro = thread._coro
+        local args = thread._resume_args
 
-      current = thread
-      thread._state = states.running
-      coroutine.resume(coro, table.unpack(args))
-      current = nil
+        current = thread
+        thread._state = states.running
+        coroutine.resume(coro, table.unpack(args))
+        current = nil
 
-      if coroutine.status(coro) == 'dead' then
-        thread._state = states.dead
+        if coroutine.status(coro) == 'dead' then
+          thread._state = states.dead
+        end
       end
     end
   end
