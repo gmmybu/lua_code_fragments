@@ -4,7 +4,8 @@ local states = {
   resumed   = 1,
   running   = 2,
   suspended = 3,
-  dead      = 4
+  joined    = 4,
+  dead      = 5,
 }
 
 local threads = {}
@@ -44,6 +45,16 @@ local function _thread_is_resumed(t)
   return t._state == states.resumed
 end
 
+local function _thread_wakeup_joined(t)
+  for _, thread in ipairs(t._join_sources) do
+    if thread._state == states.joined then
+      thread._state = states.resumed
+    end
+  end
+
+  t._join_sources = {}
+end
+
 ------------------
 
 Thread = Class()
@@ -79,6 +90,7 @@ function Thread.dispatch()
       if thread._state == states.resumed then
         local coro = thread._coro
         local args = thread._resume_args
+        thread._resume_args = {}
 
         current = thread
         thread._state = states.running
@@ -87,6 +99,7 @@ function Thread.dispatch()
 
         if coroutine.status(coro) == 'dead' then
           thread._state = states.dead
+          _thread_wakeup_joined(thread)
         end
       end
     end
@@ -114,6 +127,8 @@ function Thread.terminate(thread)
   end
 
   thread._state = states.dead
+  _thread_wakeup_joined(thread)
+
   if thread == current then
     coroutine.yield()
   end
@@ -125,12 +140,21 @@ function Thread:__init__(func, ...)
   self._coro = coroutine.create(func)
   self._state = states.resumed
   self._resume_args = {...}
+
+  self._join_sources = {}
 end
 
 function Thread:resume(...)
   if self._state == states.suspended then
     self._state = states.resumed
     self._resume_args = {...}
-    return true
+  end
+end
+
+function Thread:join()
+  if current and self._state ~= states.dead then
+    table.insert(self._join_sources, current)
+    current._state = states.joined
+    coroutine.yield()
   end
 end
