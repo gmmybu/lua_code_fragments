@@ -13,7 +13,7 @@ end
 
 function AsyncContext:result()
   if not self._result then
-    error('must be called when AsyncContext:done() returns true')
+    error('must be called when .done() returns true')
   end
 
   return table.unpack(self._result)
@@ -77,7 +77,7 @@ end
 function exports.yield(func, ...)
   local current = _context_current()
   if not current then
-    error('.yield must be called inside .invoke')
+    error('must be called inside .invoke')
   end
 
   local args = {...}
