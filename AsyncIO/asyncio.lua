@@ -81,7 +81,7 @@ function exports.yield(func, ...)
   end
 
   local args = {...}
-  -- use when callback is called in current context
+  -- in case that callback is called in current context
   local immediate_result
   table.insert(args, function(...)
     if _context_current() == current then
