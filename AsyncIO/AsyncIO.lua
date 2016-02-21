@@ -77,7 +77,7 @@ end
 function exports.yield(func, ...)
   local current = _context_current()
   if not current then
-    error('makeFuture must be called inside makeAsyncCall')
+    error('.yield must be called inside .invoke')
   end
 
   local args = {...}
