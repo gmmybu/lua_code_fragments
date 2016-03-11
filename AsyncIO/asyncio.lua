@@ -100,4 +100,16 @@ function exports.yield(func, ...)
   end
 end
 
+function exports.return(...)
+  local current = _context_current()
+  if not current then
+    error('must be called inside asyncio.invoke')
+  end
+
+  _context_remove(current)
+  current._done = true
+  current._result = {true, ...}
+  return coroutine.yield()
+end
+
 return exports
