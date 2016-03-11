@@ -152,7 +152,7 @@ function Thread:resume(...)
 end
 
 function Thread:join()
-  if current and self._state ~= states.dead then
+  if current and current ~= self and self._state ~= states.dead then
     table.insert(self._join_sources, current)
     current._state = states.joined
     coroutine.yield()
