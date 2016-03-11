@@ -87,7 +87,7 @@ function exports.yield(func, ...)
     if _context_current() == current then
       immediate_result = {...}
     elseif not current._done then
-      _resume(current, ...)
+      _context_resume(current, ...)
     end
   end)
 
