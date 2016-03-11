@@ -100,7 +100,7 @@ function exports.yield(func, ...)
   end
 end
 
-function exports.return(...)
+function exports.exit(...)
   local current = _context_current()
   if not current then
     error('must be called inside asyncio.invoke')
